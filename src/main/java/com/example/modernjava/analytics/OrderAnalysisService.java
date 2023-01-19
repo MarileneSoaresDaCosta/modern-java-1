@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -149,12 +150,14 @@ public class OrderAnalysisService {
      * @return total revenue for each product
      */
     public Map<String,BigDecimal> totalRevenueByProduct() {
-        Map<Object, Integer> result = orders.stream()
+        Map<String, Integer> result = orders.stream()
                         // stream of all items in all orders
                         .flatMap(order -> order.getItems().stream())
                         // >> map of items Map<Object, List<OrderItem>> - >> test if I'm getting a map with string and zero
 //                        .collect(groupingBy(item -> item.getProduct().getName(), summingInt(OrderItem::getQuantity) )); tests using additional param in groupingByh
-                        .collect(groupingBy(item -> item.getProduct().getName(), summingInt(OrderItem::getQuantity) ));
+                        .collect(groupingBy(item -> item.getProduct().getName(),
+                               Collectors.reducing(0, OrderItem::getQuantity, Integer::sum)
+                        ));
 
 //                        (reducing(0,
 //                                BigDecimal.valueOf(item.getProduct().getPrice()), // add here q and discount
