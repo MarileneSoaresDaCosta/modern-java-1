@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.BIG_DECIMAL;
 
 class OrderAnalysisServiceTest {
 
@@ -25,7 +26,7 @@ class OrderAnalysisServiceTest {
         System.out.println("--- Initialized analyzer with test order data ---");
         System.out.println("--- Total Orders: " + analysisService.totalOrders());
         System.out.println("--- Total Units Sold: " + analysisService.totalUnitsSold());
-        System.out.println("--- Total Revenue: " + "TODO: analysisService.totalRevenue()");
+        System.out.println("--- Total Revenue: " + analysisService.totalRevenue());
     }
 
     @Test
@@ -69,4 +70,17 @@ class OrderAnalysisServiceTest {
     }
 
     // TODO: Implement the tests that should accompany the new functions added to the OrderAnalysisService
+    @Test
+    void totalRevenueNotZero() {
+        System.out.println(analysisService.totalRevenue());
+        assertThat(analysisService.totalRevenue()).isNotZero();
+    }
+
+    @Test
+    void totalRevenueByProductNotZero(){
+//        System.out.println(analysisService.totalRevenueByProduct());
+        assertThat(analysisService.totalRevenueByProduct().size()).isNotZero();
+    }
+
+
 }

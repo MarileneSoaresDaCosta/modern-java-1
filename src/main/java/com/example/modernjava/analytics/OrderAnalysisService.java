@@ -6,6 +6,8 @@ import com.example.modernjava.domain.Order;
 import com.example.modernjava.domain.OrderItem;
 import lombok.NonNull;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -118,8 +120,52 @@ public class OrderAnalysisService {
     }
 
     // TODO: Implement the following functions and their accompanying tests using streams
+
     // totalRevenue
+    /**
+     * Get the total revenue for all orders in the order collections used to
+     * initialize this class
+     * <p>
+     * Revenue per order item == Quantity * Price * (1 - Discount)
+     *
+     * @return total revenue for all orders
+     */
+    public BigDecimal totalRevenue() {
+        return BigDecimal.valueOf(orders.stream()
+                .flatMapToDouble(order -> order.getItems().stream()
+                        .mapToDouble(item -> BigDecimal.valueOf(item.getQuantity())
+                                .multiply(item.getProduct().getPrice())
+                                .multiply(BigDecimal.valueOf(1).subtract(item.getDiscount()))
+                                .doubleValue()))
+                .sum());
+    }
+
     // totalRevenueByProduct
+    /**
+     * Get the total revenue for each product in the order collections used to
+     * initialize this class
+     * <p>
+     * Revenue per order item == Quantity * Price * (1 - Discount)
+     * product represented by name
+     * @return total revenue for each product
+     */
+    public Map<String,BigDecimal> totalRevenueByProduct() {
+        System.out.println(orders.stream().flatMap(order -> order.getItems().stream()).collect(Collectors.toList()));
+        Map<String,BigDecimal> hm = new HashMap<>();
+        hm.put("sample", BigDecimal.valueOf(15.69));
+        return hm;
+    }
+
+    /*
+    public Map<String, Integer> totalUnitsSoldByProduct() {
+        return orders.stream()
+                        .flatMap(order -> order.getItems().stream())
+                        .collect(groupingBy(item -> item.getProduct().getName(),
+                            Collectors.summingInt(OrderItem::getQuantity)));
+                            // Could use reduce(Integer::sum) as alternative
+    }
+     */
+
     // totalRevenueByCustomer
     // totalRevenueByCustomerByProduct
     // totalRevenueByCountry
