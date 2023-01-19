@@ -4,13 +4,13 @@ import com.example.modernjava.domain.Address;
 import com.example.modernjava.domain.Customer;
 import com.example.modernjava.domain.Order;
 import com.example.modernjava.domain.OrderItem;
+import com.example.modernjava.domain.Product;
 import lombok.NonNull;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -72,8 +72,10 @@ public class OrderAnalysisService {
      */
     public long totalUnitsSold() {
         //return orders.stream().flatMapToInt(order -> order.getItems().stream().mapToInt(OrderItem::getQuantity)).sum();
-        return orders.stream().flatMapToInt(order -> order.getItems().stream().mapToInt(OrderItem::getQuantity)).reduce(
-                Integer::sum).orElse(0); // Could use Collectors.summingInt as alternative
+        return orders.stream()
+                        .flatMapToInt(order -> order.getItems().stream()
+                                .mapToInt(OrderItem::getQuantity))
+                .reduce(Integer::sum).orElse(0); // Could use Collectors.summingInt as alternative
     }
 
     /**
@@ -84,9 +86,10 @@ public class OrderAnalysisService {
      * @return total number of units sold, grouped by product
      */
     public Map<String, Integer> totalUnitsSoldByProduct() {
-        return orders.stream().flatMap(order -> order.getItems().stream()).collect(groupingBy(item -> item.getProduct()
-                        .getName(),
-                Collectors.summingInt(OrderItem::getQuantity))); // Could use reduce(Integer::sum) as alternative
+        return orders.stream().
+                flatMap(order -> order.getItems().stream())
+                .collect(groupingBy(item -> item.getProduct().getName(),
+                    Collectors.summingInt(OrderItem::getQuantity))); // Could use reduce(Integer::sum) as alternative
     }
 
     /**
@@ -150,18 +153,30 @@ public class OrderAnalysisService {
      * @return total revenue for each product
      */
     public Map<String,BigDecimal> totalRevenueByProduct() {
-        Map<String, Integer> result = orders.stream()
-                        // stream of all items in all orders
-                        .flatMap(order -> order.getItems().stream())
-                        // >> map of items Map<Object, List<OrderItem>> - >> test if I'm getting a map with string and zero
-//                        .collect(groupingBy(item -> item.getProduct().getName(), summingInt(OrderItem::getQuantity) )); tests using additional param in groupingByh
-                        .collect(groupingBy(item -> item.getProduct().getName(),
-                               Collectors.reducing(0, OrderItem::getQuantity, Integer::sum)
-                        ));
 
-//                        (reducing(0,
-//                                BigDecimal.valueOf(item.getProduct().getPrice()), // add here q and discount
-//                                (i, j) -> BigDecimal.valueOf(i).add(BigDecimal.valueOf(j));
+        /* trying to use the following structure to calculate revenue instead of quantity sum:
+        Map<String, Integer> result = orders.stream()
+            .flatMap(order -> order.getItems().stream())
+            .collect(groupingBy(item -> item.getProduct().getName(),
+                Collectors.reducing(0, OrderItem::getQuantity, Integer::sum)
+            ));
+         */
+        Map<Object,Object> result = orders.stream()
+                .flatMap(order -> order.getItems().stream())
+                .collect(groupingBy(item -> item.getProduct().getName(),
+                                Collectors.reducing(BigDecimal.ZERO, OrderItem::getProduct,
+                                        (item1, item2) -> {
+//                                            BigDecimal a = BigDecimal.valueOf(item1.getQuantity())
+//                                                .multiply(item1.getProduct().getPrice())
+//                                                .multiply(BigDecimal.valueOf(1).subtract(item1.getDiscount()));
+//                                            BigDecimal b = BigDecimal.valueOf(item2.getQuantity())
+//                                                    .multiply(item2.getProduct().getPrice())
+//                                                    .multiply(BigDecimal.valueOf(1).subtract(item2.getDiscount()));
+//                                            return a.multiply(b); // revenue accum for items 1 and 2
+                                            return item2;
+                                })
+                ));
+
 
         System.out.println("result: >> " +result);
         Map<String,BigDecimal> hm = new HashMap<>();
