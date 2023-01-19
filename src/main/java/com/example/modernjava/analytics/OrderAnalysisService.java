@@ -13,8 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.flatMapping;
-import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.*;
 
 public class OrderAnalysisService {
     private final List<Order> orders;
@@ -150,12 +149,12 @@ public class OrderAnalysisService {
      * @return total revenue for each product
      */
     public Map<String,BigDecimal> totalRevenueByProduct() {
-        Map<Object, List<OrderItem>> result = orders.stream()
+        Map<Object, Integer> result = orders.stream()
                         // stream of all items in all orders
                         .flatMap(order -> order.getItems().stream())
-                        // >> map of items Map<Object, List<OrderItem>>
-                        .collect(groupingBy(item -> item.getProduct().getName()));
-//                              ,0, reducing...)  >> test if I'm getting a map with string and zero
+                        // >> map of items Map<Object, List<OrderItem>> - >> test if I'm getting a map with string and zero
+//                        .collect(groupingBy(item -> item.getProduct().getName(), summingInt(OrderItem::getQuantity) )); tests using additional param in groupingByh
+                        .collect(groupingBy(item -> item.getProduct().getName(), summingInt(OrderItem::getQuantity) ));
 
 //                        (reducing(0,
 //                                BigDecimal.valueOf(item.getProduct().getPrice()), // add here q and discount
