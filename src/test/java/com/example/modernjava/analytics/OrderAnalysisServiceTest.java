@@ -6,6 +6,8 @@ import com.example.modernjava.repositories.OrderTestRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -78,9 +80,10 @@ class OrderAnalysisServiceTest {
 
     @Test
     void totalRevenueByProductNotZero(){
-//        System.out.println(analysisService.totalRevenueByProduct());
+        Map<String, BigDecimal> testFn = analysisService.totalRevenueByProduct();
         assertThat(analysisService.totalRevenueByProduct().size()).isNotZero();
     }
 
+    // total final should equal the total revenue
 
 }

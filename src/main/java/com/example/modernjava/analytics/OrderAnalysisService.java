@@ -150,21 +150,24 @@ public class OrderAnalysisService {
      * @return total revenue for each product
      */
     public Map<String,BigDecimal> totalRevenueByProduct() {
-        System.out.println(orders.stream().flatMap(order -> order.getItems().stream()).collect(Collectors.toList()));
+        Map<Object, List<OrderItem>> result = orders.stream()
+                        // stream of all items in all orders
+                        .flatMap(order -> order.getItems().stream())
+                        // >> map of items Map<Object, List<OrderItem>>
+                        .collect(groupingBy(item -> item.getProduct().getName()));
+//                              ,0, reducing...)  >> test if I'm getting a map with string and zero
+
+//                        (reducing(0,
+//                                BigDecimal.valueOf(item.getProduct().getPrice()), // add here q and discount
+//                                (i, j) -> BigDecimal.valueOf(i).add(BigDecimal.valueOf(j));
+
+        System.out.println("result: >> " +result);
         Map<String,BigDecimal> hm = new HashMap<>();
         hm.put("sample", BigDecimal.valueOf(15.69));
         return hm;
     }
 
-    /*
-    public Map<String, Integer> totalUnitsSoldByProduct() {
-        return orders.stream()
-                        .flatMap(order -> order.getItems().stream())
-                        .collect(groupingBy(item -> item.getProduct().getName(),
-                            Collectors.summingInt(OrderItem::getQuantity)));
-                            // Could use reduce(Integer::sum) as alternative
-    }
-     */
+
 
     // totalRevenueByCustomer
     // totalRevenueByCustomerByProduct
